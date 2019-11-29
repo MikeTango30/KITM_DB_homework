@@ -1,7 +1,8 @@
 class boardgame:
 
-    def __init__(self, boardgame_id, boardgame_title, year_released, selling_price, min_players, max_players, playing_time, age_from):
+    def __init__(self, boardgame_id, publisher_id, boardgame_title, year_released, selling_price, min_players, max_players, playing_time, age_from):
         self.boardgame_id = boardgame_id
+        self.publisher_id = publisher_id
         self.boardgame_title = boardgame_title
         self.year_released = year_released
         self.selling_price = selling_price
