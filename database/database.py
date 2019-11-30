@@ -1,4 +1,5 @@
 import sqlite3
+import pprint
 from boardgames.boardgame import boardgame
 from boardgames.designer import designer
 from boardgames.publisher import publisher
@@ -7,18 +8,19 @@ from boardgames.category import category
 
 # Boardgames
 #
-# Game: boardgame_id, boardgame_title, year_released, selling_price, min_players, max_players, playing_time, age_from
+# Game: boardgame_id, boardgame_title, year_released, selling_price, min_players, max_players, playing_time, age_from,
+#                                                                                       printed_quantity, printing_price
 
 # Designer: designer_id, first_name, last_name, birthdate
 
-# Publisher: publisher_id, boardgame_id(FK), publisher_name, printed_quantity, printing_price
+# Publisher: publisher_id, boardgame_id(FK), publisher_name
 
 # Artist: artist_id, first_name, last_name, birthdate
 
 # Categories: category_id, category_name
 
 
-# One to many
+# One to many(in reality it is many to many relationship, but for learning sake we say it's one to many rel)
 # publisher -> game
 
 # Many to Many
@@ -121,13 +123,13 @@ def create_table(create_table_query):
 # crud
 # -------
 # helpers
-def get_fields_for_where(entity):
+def get_fields(entity):
     field_values = [attr + ' = (?)' for attr, value in entity.__dict__.items()]
 
     return field_values
 
 
-def execute_query(sql_query, query_parameters, select=None):
+def execute_query(sql_query, query_parameters=None, select=None):
     try:
         connection, cursor = open_connection()
 
@@ -135,7 +137,7 @@ def execute_query(sql_query, query_parameters, select=None):
             cursor.execute(sql_query, query_parameters)
             connection.commit()
         if select:
-            rows = [row for row in cursor.execute(sql_query, query_parameters)]
+            rows = [row for row in cursor.execute(sql_query)]
             return rows
 
     except sqlite3.DatabaseError as error:
@@ -159,22 +161,25 @@ def build_insert_query(entity, table_name):
     return insert_query
 
 
-def build_select_query(entity, table_name):
-    get_query = "SELECT * FROM " + table_name + " WHERE " + ' OR '.join(get_fields_for_where(entity)) + ""
+def build_select_query(entity, table_name, field_to_filter=None):
+    entity_filtered_field = "'" + entity.__getattribute__(field_to_filter) + "'"
+    get_query = "SELECT * FROM " + table_name + " WHERE " + field_to_filter + " = " + entity_filtered_field + ""
+    if field_to_filter is None:
+        get_query = "SELECT * FROM " + table_name + " WHERE " + ' OR '.join(get_fields(entity)) + ""
 
     return get_query
 
 
 def build_update_query(entity, table_name, field_to_update, new_value):
-    new_value = "'" + new_value + "'"
-    field_id = get_fields_for_where(entity)[0]
+    new_value = "'" + str(new_value) + "'"
+    field_id = get_fields(entity)[0]
     update_query = "UPDATE " + table_name + " SET " + field_to_update + " = " + new_value + " WHERE " + field_id + ""
 
     return update_query
 
 
 def build_delete_query(entity, table_name):
-    field_id = get_fields_for_where(entity)[0]
+    field_id = get_fields(entity)[0]
     delete_query = "DELETE FROM " + table_name + " WHERE " + field_id + ""
 
     return delete_query
@@ -186,25 +191,27 @@ def insert_entity(entity, table_name):
 
 
 # r
-def get_entity(entity, table_name):
-    return execute_query(build_select_query(entity, table_name), gather_parameters(entity), True)
+def get_entity(entity, table_name, field_to_filter):
+    return execute_query(build_select_query(entity, table_name, field_to_filter), gather_parameters(entity), True)
 
 
 # u
-def update_entity(entity, table_name, field_to_update, new_value):
+# field_to_filter is needed just to get entity id from DB with select query
+def update_entity(entity, table_name, field_to_update, new_value, field_to_filter):
     update_query = build_update_query(entity, table_name, field_to_update, new_value)
-    entity_id = [get_entity(entity, table_name)[0][0]]
+    entity_id = [get_entity(entity, table_name, field_to_filter)[0][0]]
     execute_query(update_query, entity_id)
 
 
 # d
-def delete_entity(entity, table_name):
+# field_to_filter is needed just to get entity id from DB with select query
+def delete_entity(entity, table_name, field_to_filter):
     delete_query = build_delete_query(entity, table_name)
-    entity_id = [get_entity(entity, table_name)[0][0]]
+    entity_id = [get_entity(entity, table_name, field_to_filter)[0][0]]
     execute_query(delete_query, entity_id)
 
 
-# entries
+# data repository
 # boardgames
 boardgame_tta = boardgame(None, None, 'Through The Ages: A New Story of Civilization', 2015, 65, 2, 4, 120, 14, 25000,
                           30)
@@ -257,7 +264,7 @@ artist_scythe = artist(None, 'Jakub', 'Rozalski')
 artist_gwt = artist(None, 'Andreas', 'Resch')
 artist_arkham_1 = artist(None, 'Christopher', 'Hosch')
 artist_arkham_2 = artist(None, 'Marcin', 'Jakubowski')
-artist_blood_rage_1 = artist(None, 'Henning', 'Ludvigsen')
+artist_blood_rage = artist(None, 'Henning', 'Ludvigsen')
 artist_imperial_assault_1 = artist(None, 'Arden', 'Beckwith')
 artist_imperial_assault_2 = artist(None, 'Christopher', 'Burdett')
 artist_root = artist(None, 'Kyle', 'Ferrin')
@@ -265,23 +272,23 @@ artist_crokinole = artist(None, '(Uncredited)', '(Uncredited)')
 
 artists = [artist_tta_1, artist_tta_2, artist_gloomhaven_1, artist_gloomhaven_2, artist_terraforming_mars,
            artist_rebellion_1, artist_rebellion_2, artist_gaia, artist_scythe, artist_gwt, artist_arkham_1,
-           artist_arkham_2, artist_blood_rage_1, artist_imperial_assault_1, artist_imperial_assault_2, artist_root,
+           artist_arkham_2, artist_blood_rage, artist_imperial_assault_1, artist_imperial_assault_2, artist_root,
            artist_crokinole]
 
 # publishers
 publisher_tta = publisher(None, 'Czech Games Edition')
-publisher_gloomhaven = (None, 'Cephalofair Games')
-publisher_fryxgames = (None, 'FryxGames')
-publisher_ffg = (None, 'Fantasy Flight Games')
-publisher_feuerland = (None, 'Feuerland Spiele')
-publisher_stonemeier = (None, 'Stonemeier Games')
-publisher_gwt = (None, 'Eggert Spiele')
-publisher_cmon = (None, 'CMON')
-publisher_leder = (None, 'Leder Games')
-publisher_public = (None, '(Public Domain)')
+publisher_gloomhaven = publisher(None, 'Cephalofair Games')
+publisher_fryxgames = publisher(None, 'FryxGames')
+publisher_ffg = publisher(None, 'Fantasy Flight Games')
+publisher_feuerland = publisher(None, 'Feuerland Spiele')
+publisher_stonemeier = publisher(None, 'Stonemeier Games')
+publisher_gwt = publisher(None, 'Eggert Spiele')
+publisher_cmon = publisher(None, 'CMON')
+publisher_leder = publisher(None, 'Leder Games')
+publisher_public = publisher(None, '(Public Domain)')
 
 publishers = [publisher_tta, publisher_gloomhaven, publisher_fryxgames, publisher_ffg, publisher_feuerland,
-              publisher_stonemeier, great_western_trail, publisher_cmon, publisher_leder, publisher_public]
+              publisher_stonemeier, publisher_gwt, publisher_cmon, publisher_leder, publisher_public]
 
 # categories
 category_tta = category(None, 'Strategy')
@@ -304,6 +311,9 @@ category_american_west = category(None, 'American West')
 category_animals = category(None, 'Animals')
 category_mythology = category(None, 'Mythology')
 category_flicking = category(None, 'Flicking')
+category_collectible = category(None, 'Collectible Components')
+category_novel = category(None, 'Novel Based')
+category_horror = category(None, 'Horror')
 
 categories = [category_tta, category_card_game, category_civilization, category_economic, category_adventure,
               category_exploration, category_fighting, category_fantasy, category_miniatures, category_scifi,
@@ -311,20 +321,76 @@ categories = [category_tta, category_card_game, category_civilization, category_
               category_movies, category_wargame, category_american_west, category_animals, category_mythology,
               category_flicking]
 
-# # field_to_update = 'boardgame_title'
-# new_value = "Through the Ages: A New Story of Civilization"
-
 # create tables
-# for query in create_table_queries_list:
-#     create_table(query)
+print('creating tables...')
+for query in create_table_queries_list:
+    create_table(query)
 
-# insert_entity(boardgame_tta, table_boardgames)
-# insert_entity(artist_tta_1, table_artists)
-# insert_entity(artist_tta_2, table_artists)
-# insert_entity(designer_tta, table_designers)
-# insert_entity(publisher_tta, table_publishers)
-# insert_entity(category_tta, table_categories)
+# crud in action
+# c
+print('inserting demo data...')
+for boardgame in boardgames:
+    insert_entity(boardgame, table_boardgames)
+for designer in designers:
+    insert_entity(designer, table_designers)
+for artist in artists:
+    insert_entity(artist, table_artists)
+for publisher in publishers:
+    insert_entity(publisher, table_publishers)
+for category in categories:
+    insert_entity(category, table_categories)
 
-# print(get_entity(designer_tta, table_designers))
-# update_entity(boardgame_tta, table_boardgames, field_to_update, new_value)
-# delete_entity(artist_tta_2, table_artists)
+# create demo junction relationships
+print('creating demo junction table data...')
+junction_relationships = (
+    [1, 1, 1, 1, 1], [1, 0, 0, 2, 2], [1, 0, 0, 0, 3], [2, 2, 2, 3, 5], [2, 0, 0, 4, 6], [2, 0, 0, 0, 7],
+    [2, 0, 0, 0, 8], [2, 0, 0, 0, 9], [3, 3, 3, 5, 4], [3, 0, 0, 0, 14], [3, 0, 0, 0, 13], [3, 0, 0, 0, 11],
+    [3, 0, 0, 0, 10], [3, 0, 0, 0, 12], [4, 4, 4, 6, 7], [4, 0, 0, 7, 9], [4, 0, 0, 0, 15], [4, 0, 0, 0, 10],
+    [4, 0, 0, 0, 16], [5, 5, 5, 8, 3], [5, 6, 0, 0, 4], [5, 0, 0, 0, 10], [5, 0, 0, 0, 11], [5, 0, 0, 0, 12],
+    [6, 7, 6, 9, 4], [6, 0, 0, 0, 7], [6, 0, 0, 0, 10], [6, 0, 0, 0, 12], [7, 8, 7, 10, 17], [7, 0, 0, 0, 18],
+    [8, 9, 4, 11, 5], [8, 10, 0, 12, 2], [8, 0, 0, 0, 8], [8, 0, 0, 0, 21], [8, 0, 0, 0, 22], [8, 0, 0, 0, 23],
+    [9, 11, 8, 13, 8], [9, 0, 0, 0, 7], [9, 0, 0, 0, 9], [9, 0, 0, 0, 19], [10, 12, 4, 14, 5], [10, 4, 0, 15, 7],
+    [10, 13, 0, 0, 9], [10, 0, 0, 0, 15], [10, 0, 0, 0, 10], [10, 0, 0, 0, 16], [11, 14, 9, 16, 18], [11, 0, 0, 0, 8],
+    [11, 0, 0, 0, 16], [12, 15, 10, 17, 20]
+)
+for relationships in junction_relationships:
+    execute_query("INSERT INTO junction VALUES(?, ?, ?, ?, ?)", relationships)
+
+# u
+# demo relationships boardgames with publishers
+print('updating relationships...')
+publisher_ids = [1, 2, 3, 4, 5, 6, 7, 4, 8, 4, 9, 10]
+boardgame_field_to_update = 'publisher_id'
+boardgame_field_to_filter = 'boardgame_title'
+for boardgame, publisher_id in zip(boardgames, publisher_ids):
+    update_entity(boardgame, table_boardgames, boardgame_field_to_update, publisher_id, boardgame_field_to_filter)
+
+# r
+print(' ')
+print(' ')
+print('testing get_entity function with "gloomhaven" argument:')
+pp = pprint.PrettyPrinter()
+pp.pprint(get_entity(gloomhaven, table_boardgames, boardgame_field_to_filter))
+print(' ')
+print('testing boardgame -> publisher relationships - printing FFG boardgames:')
+pp.pprint(execute_query("""SELECT boardgame_title FROM boardgames 
+                            JOIN publishers ON boardgames.publisher_id = publishers.publisher_id
+                            WHERE publishers.publisher_id = 4""", None, True))
+print(' ')
+print('testing junction table relationships:')
+pp.pprint(execute_query("""SELECT 'Category - ' || category_name,  'Board Games - ' || 
+                            GROUP_CONCAT(boardgame_title, ' / ')
+                        FROM categories, boardgames 
+                        JOIN junction  ON boardgames.boardgame_id = junction.boardgame_id 
+                                        AND categories.category_id = junction.category_id
+                        GROUP BY category_name""", None, True))
+
+
+# d
+print(' ')
+print(' ')
+print('deleting gloomhaven entry...')
+delete_entity(gloomhaven, table_boardgames, boardgame_field_to_filter)
+print(' ')
+print('testing delete... searching for gloomhaven:')
+pp.pprint(get_entity(gloomhaven, table_boardgames, boardgame_field_to_filter))
