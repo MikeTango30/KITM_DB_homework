@@ -51,7 +51,6 @@ create_table_designers = """CREATE TABLE IF NOT EXISTS designers (
 
 create_table_publishers = """CREATE TABLE IF NOT EXISTS publishers (
                                                         publisher_id integer PRIMARY KEY,
-                                                        boardgame_id integer,
                                                         publisher_name text NOT NULL,
                                                         printed_quantity integer NOT NULL,
                                                         printing_price numeric NOT NULL,
