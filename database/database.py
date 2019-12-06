@@ -321,76 +321,113 @@ categories = [category_tta, category_card_game, category_civilization, category_
               category_movies, category_wargame, category_american_west, category_animals, category_mythology,
               category_flicking]
 
-# create tables
-print('creating tables...')
-for query in create_table_queries_list:
-    create_table(query)
-
-# crud in action
-# c
-print('inserting demo data...')
-for boardgame in boardgames:
-    insert_entity(boardgame, table_boardgames)
-for designer in designers:
-    insert_entity(designer, table_designers)
-for artist in artists:
-    insert_entity(artist, table_artists)
-for publisher in publishers:
-    insert_entity(publisher, table_publishers)
-for category in categories:
-    insert_entity(category, table_categories)
+# # create tables
+# print('creating tables...')
+# for query in create_table_queries_list:
+#     create_table(query)
+#
+# # crud in action
+# # c
+# print('inserting demo data...')
+# for boardgame in boardgames:
+#     insert_entity(boardgame, table_boardgames)
+# for designer in designers:
+#     insert_entity(designer, table_designers)
+# for artist in artists:
+#     insert_entity(artist, table_artists)
+# for publisher in publishers:
+#     insert_entity(publisher, table_publishers)
+# for category in categories:
+#     insert_entity(category, table_categories)
 
 # create demo junction relationships
-print('creating demo junction table data...')
-junction_relationships = (
-    [1, 1, 1, 1, 1], [1, 0, 0, 2, 2], [1, 0, 0, 0, 3], [2, 2, 2, 3, 5], [2, 0, 0, 4, 6], [2, 0, 0, 0, 7],
-    [2, 0, 0, 0, 8], [2, 0, 0, 0, 9], [3, 3, 3, 5, 4], [3, 0, 0, 0, 14], [3, 0, 0, 0, 13], [3, 0, 0, 0, 11],
-    [3, 0, 0, 0, 10], [3, 0, 0, 0, 12], [4, 4, 4, 6, 7], [4, 0, 0, 7, 9], [4, 0, 0, 0, 15], [4, 0, 0, 0, 10],
-    [4, 0, 0, 0, 16], [5, 5, 5, 8, 3], [5, 6, 0, 0, 4], [5, 0, 0, 0, 10], [5, 0, 0, 0, 11], [5, 0, 0, 0, 12],
-    [6, 7, 6, 9, 4], [6, 0, 0, 0, 7], [6, 0, 0, 0, 10], [6, 0, 0, 0, 12], [7, 8, 7, 10, 17], [7, 0, 0, 0, 18],
-    [8, 9, 4, 11, 5], [8, 10, 0, 12, 2], [8, 0, 0, 0, 8], [8, 0, 0, 0, 21], [8, 0, 0, 0, 22], [8, 0, 0, 0, 23],
-    [9, 11, 8, 13, 8], [9, 0, 0, 0, 7], [9, 0, 0, 0, 9], [9, 0, 0, 0, 19], [10, 12, 4, 14, 5], [10, 4, 0, 15, 7],
-    [10, 13, 0, 0, 9], [10, 0, 0, 0, 15], [10, 0, 0, 0, 10], [10, 0, 0, 0, 16], [11, 14, 9, 16, 18], [11, 0, 0, 0, 8],
-    [11, 0, 0, 0, 16], [12, 15, 10, 17, 20]
-)
-for relationships in junction_relationships:
-    execute_query("INSERT INTO junction VALUES(?, ?, ?, ?, ?)", relationships)
+# print('creating demo junction table data...')
+# junction_relationships = (
+#     [1, 1, 1, 1, 1], [1, 0, 0, 2, 2], [1, 0, 0, 0, 3], [2, 2, 2, 3, 5], [2, 0, 0, 4, 6], [2, 0, 0, 0, 7],
+#     [2, 0, 0, 0, 8], [2, 0, 0, 0, 9], [3, 3, 3, 5, 4], [3, 0, 0, 0, 14], [3, 0, 0, 0, 13], [3, 0, 0, 0, 11],
+#     [3, 0, 0, 0, 10], [3, 0, 0, 0, 12], [4, 4, 4, 6, 7], [4, 0, 0, 7, 9], [4, 0, 0, 0, 15], [4, 0, 0, 0, 10],
+#     [4, 0, 0, 0, 16], [5, 5, 5, 8, 3], [5, 6, 0, 0, 4], [5, 0, 0, 0, 10], [5, 0, 0, 0, 11], [5, 0, 0, 0, 12],
+#     [6, 7, 6, 9, 4], [6, 0, 0, 0, 7], [6, 0, 0, 0, 10], [6, 0, 0, 0, 12], [7, 8, 7, 10, 17], [7, 0, 0, 0, 18],
+#     [8, 9, 4, 11, 5], [8, 10, 0, 12, 2], [8, 0, 0, 0, 8], [8, 0, 0, 0, 21], [8, 0, 0, 0, 22], [8, 0, 0, 0, 23],
+#     [9, 11, 8, 13, 8], [9, 0, 0, 0, 7], [9, 0, 0, 0, 9], [9, 0, 0, 0, 19], [10, 12, 4, 14, 5], [10, 4, 0, 15, 7],
+#     [10, 13, 0, 0, 9], [10, 0, 0, 0, 15], [10, 0, 0, 0, 10], [10, 0, 0, 0, 16], [11, 14, 9, 16, 18], [11, 0, 0, 0, 8],
+#     [11, 0, 0, 0, 16], [12, 15, 10, 17, 20]
+# )
+
+# sample
+# boardgame: "Gloomhaven"
+# designer: Isaac Childres
+# artists: Alexandr Elichev, Josh T. McDowell
+# publisher: Cephalofair Games
+# categories: Adventure, Exploration, Fantasy, Fighting, Miniatures
+
+boardgame_id_query = "SELECT boardgame_id FROM boardgames WHERE boardgame_title = (?)"
+designer_id_query = "SELECT designer_id FROM designers WHERE last_name = (?)"
+publisher_id_query = "SELECT publisher_id FROM publishers WHERE publisher_name = (?)"
+artist_id_query = "SELECT artist_id FROM artists WHERE last_name = (?)"
+category_id_query = "SELECT category_id FROM categories WHERE category_name = (?)"
+
+boardgame_title = gloomhaven.boardgame_title
+designer_last_name = designer_gloomhaven.last_name
+publisher_name = publisher_gloomhaven.publisher_name
+artist_last_name = artist_gloomhaven_1.last_name
+category_name = category_adventure.category_name
+
+id_queries = (boardgame_id_query, designer_id_query, publisher_id_query, artist_id_query, category_id_query)
+
+
+def insert_relationships(boardgame_id_query, designer_id_query, publisher_id_query, artist_id_query, category_id_query,
+                         boardgame_title, designer_last_name, publisher_name, artist_last_name, category_name):
+    params = (boardgame_title, designer_last_name, publisher_name, artist_last_name, category_name)
+    execute_query("""INSERT INTO junction VALUES((""" + boardgame_id_query + """), 
+                                                 (""" + designer_id_query + """), 
+                                                 (""" + publisher_id_query + """), 
+                                                 (""" + artist_id_query + """), 
+                                                 (""" + category_id_query + """))""", params)
+
+
+# insert_relationships(boardgame_id_query, designer_id_query, publisher_id_query, artist_id_query, category_id_query,
+#                      boardgame_title, designer_last_name, publisher_name, artist_last_name, category_name)
+
+print(execute_query("SELECT * FROM junction", None, True))
+# for relationships in junction_relationships:
+#     execute_query("INSERT INTO junction VALUES(?, ?, ?, ?, ?)", relationships)
 
 # u
 # demo relationships boardgames with publishers
-print('updating relationships...')
-publisher_ids = [1, 2, 3, 4, 5, 6, 7, 4, 8, 4, 9, 10]
-boardgame_field_to_update = 'publisher_id'
-boardgame_field_to_filter = 'boardgame_title'
-for boardgame, publisher_id in zip(boardgames, publisher_ids):
-    update_entity(boardgame, table_boardgames, boardgame_field_to_update, publisher_id, boardgame_field_to_filter)
-
-# r
-print(' ')
-print(' ')
-print('testing get_entity function with "gloomhaven" argument:')
-pp = pprint.PrettyPrinter()
-pp.pprint(get_entity(gloomhaven, table_boardgames, boardgame_field_to_filter))
-print(' ')
-print('testing boardgame -> publisher relationships - printing FFG boardgames:')
-pp.pprint(execute_query("""SELECT boardgame_title FROM boardgames 
-                            JOIN publishers ON boardgames.publisher_id = publishers.publisher_id
-                            WHERE publishers.publisher_id = 4""", None, True))
-print(' ')
-print('testing junction table relationships:')
-pp.pprint(execute_query("""SELECT 'Category - ' || category_name,  'Board Games - ' || 
-                            GROUP_CONCAT(boardgame_title, ' / ')
-                        FROM categories, boardgames 
-                        JOIN junction  ON boardgames.boardgame_id = junction.boardgame_id 
-                                        AND categories.category_id = junction.category_id
-                        GROUP BY category_name""", None, True))
-
-
-# d
-print(' ')
-print(' ')
-print('deleting gloomhaven entry...')
-delete_entity(gloomhaven, table_boardgames, boardgame_field_to_filter)
-print(' ')
-print('testing delete... searching for gloomhaven:')
-pp.pprint(get_entity(gloomhaven, table_boardgames, boardgame_field_to_filter))
+# print('updating relationships...')
+# publisher_ids = [1, 2, 3, 4, 5, 6, 7, 4, 8, 4, 9, 10]
+# boardgame_field_to_update = 'publisher_id'
+# boardgame_field_to_filter = 'boardgame_title'
+# for boardgame, publisher_id in zip(boardgames, publisher_ids):
+#     update_entity(boardgame, table_boardgames, boardgame_field_to_update, publisher_id, boardgame_field_to_filter)
+#
+# # r
+# print(' ')
+# print(' ')
+# print('testing get_entity function with "gloomhaven" argument:')
+# pp = pprint.PrettyPrinter()
+# pp.pprint(get_entity(gloomhaven, table_boardgames, boardgame_field_to_filter))
+# print(' ')
+# print('testing boardgame -> publisher relationships - printing FFG boardgames:')
+# pp.pprint(execute_query("""SELECT boardgame_title FROM boardgames
+#                             JOIN publishers ON boardgames.publisher_id = publishers.publisher_id
+#                             WHERE publishers.publisher_id = 4""", None, True))
+# print(' ')
+# print('testing junction table relationships:')
+# pp.pprint(execute_query("""SELECT 'Category - ' || category_name,  'Board Games - ' ||
+#                             GROUP_CONCAT(boardgame_title, ' / ')
+#                         FROM categories, boardgames
+#                         JOIN junction  ON boardgames.boardgame_id = junction.boardgame_id
+#                                         AND categories.category_id = junction.category_id
+#                         GROUP BY category_name""", None, True))
+#
+#
+# # d
+# print(' ')
+# print(' ')
+# print('deleting gloomhaven entry...')
+# delete_entity(gloomhaven, table_boardgames, boardgame_field_to_filter)
+# print(' ')
+# print('testing delete... searching for gloomhaven:')
+# pp.pprint(get_entity(gloomhaven, table_boardgames, boardgame_field_to_filter))
