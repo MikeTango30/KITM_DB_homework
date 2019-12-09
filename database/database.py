@@ -211,6 +211,24 @@ def delete_entity(entity, table_name, field_to_filter):
     execute_query(delete_query, entity_id)
 
 
+table_a = 'boardgames'
+id_a = 'boardgame_id'
+table_b = 'designers'
+id_b = 'designer_id'
+junction_table = 'junction'
+
+
+def get_related_data(table_a, id_a, table_b, id_b, junction_table):
+    select_query = """SELECT * FROM """ + table_a + """, """ + table_b + """ JOIN """ + junction_table + """
+                               ON """ + table_a + """.""" + id_a + """ = """ + junction_table + """.""" + id_a + """
+                               AND """ + table_b + """.""" + id_b + """ = """ + junction_table + """.""" + id_b + """"""
+
+    return execute_query(select_query, None, True)
+
+
+print(get_related_data(table_a, id_a, table_b, id_b, junction_table))
+
+
 # data repository
 # boardgames
 boardgame_tta = boardgame(None, None, 'Through The Ages: A New Story of Civilization', 2015, 65, 2, 4, 120, 14, 25000,
@@ -339,8 +357,8 @@ categories = [category_tta, category_card_game, category_civilization, category_
 #     insert_entity(publisher, table_publishers)
 # for category in categories:
 #     insert_entity(category, table_categories)
-
-# create demo junction relationships
+#
+# # create demo junction relationships
 # print('creating demo junction table data...')
 # junction_relationships = (
 #     [1, 1, 1, 1, 1], [1, 0, 0, 2, 2], [1, 0, 0, 0, 3], [2, 2, 2, 3, 5], [2, 0, 0, 4, 6], [2, 0, 0, 0, 7],
@@ -361,47 +379,46 @@ categories = [category_tta, category_card_game, category_civilization, category_
 # publisher: Cephalofair Games
 # categories: Adventure, Exploration, Fantasy, Fighting, Miniatures
 
-boardgame_id_query = "SELECT boardgame_id FROM boardgames WHERE boardgame_title = (?)"
-designer_id_query = "SELECT designer_id FROM designers WHERE last_name = (?)"
-publisher_id_query = "SELECT publisher_id FROM publishers WHERE publisher_name = (?)"
-artist_id_query = "SELECT artist_id FROM artists WHERE last_name = (?)"
-category_id_query = "SELECT category_id FROM categories WHERE category_name = (?)"
-
-boardgame_title = gloomhaven.boardgame_title
-designer_last_name = designer_gloomhaven.last_name
-publisher_name = publisher_gloomhaven.publisher_name
-artist_last_name = artist_gloomhaven_1.last_name
-category_name = category_adventure.category_name
-
-id_queries = (boardgame_id_query, designer_id_query, publisher_id_query, artist_id_query, category_id_query)
-
-
-def insert_relationships(boardgame_id_query, designer_id_query, publisher_id_query, artist_id_query, category_id_query,
-                         boardgame_title, designer_last_name, publisher_name, artist_last_name, category_name):
-    params = (boardgame_title, designer_last_name, publisher_name, artist_last_name, category_name)
-    execute_query("""INSERT INTO junction VALUES((""" + boardgame_id_query + """), 
-                                                 (""" + designer_id_query + """), 
-                                                 (""" + publisher_id_query + """), 
-                                                 (""" + artist_id_query + """), 
-                                                 (""" + category_id_query + """))""", params)
+# boardgame_id_query = "SELECT boardgame_id FROM boardgames WHERE boardgame_title = (?)"
+# designer_id_query = "SELECT designer_id FROM designers WHERE last_name = (?)"
+# publisher_id_query = "SELECT publisher_id FROM publishers WHERE publisher_name = (?)"
+# artist_id_query = "SELECT artist_id FROM artists WHERE last_name = (?)"
+# category_id_query = "SELECT category_id FROM categories WHERE category_name = (?)"
+#
+# boardgame_title = gloomhaven.boardgame_title
+# designer_last_name = designer_gloomhaven.last_name
+# publisher_name = publisher_gloomhaven.publisher_name
+# artist_last_name = artist_gloomhaven_1.last_name
+# category_name = category_adventure.category_name
+#
+# id_queries = (boardgame_id_query, designer_id_query, publisher_id_query, artist_id_query, category_id_query)
+#
+#
+# def insert_relationships(boardgame_id_query, designer_id_query, publisher_id_query, artist_id_query, category_id_query,
+#                          boardgame_title, designer_last_name, publisher_name, artist_last_name, category_name):
+#     params = (boardgame_title, designer_last_name, publisher_name, artist_last_name, category_name)
+#     execute_query("""INSERT INTO junction VALUES((""" + boardgame_id_query + """),
+#                                                  (""" + designer_id_query + """),
+#                                                  (""" + publisher_id_query + """),
+#                                                  (""" + artist_id_query + """),
+#                                                  (""" + category_id_query + """))""", params)
 
 
 # insert_relationships(boardgame_id_query, designer_id_query, publisher_id_query, artist_id_query, category_id_query,
 #                      boardgame_title, designer_last_name, publisher_name, artist_last_name, category_name)
 
-print(execute_query("SELECT * FROM junction", None, True))
 # for relationships in junction_relationships:
 #     execute_query("INSERT INTO junction VALUES(?, ?, ?, ?, ?)", relationships)
 
-# u
-# demo relationships boardgames with publishers
+# # u
+# # demo relationships boardgames with publishers
 # print('updating relationships...')
 # publisher_ids = [1, 2, 3, 4, 5, 6, 7, 4, 8, 4, 9, 10]
 # boardgame_field_to_update = 'publisher_id'
 # boardgame_field_to_filter = 'boardgame_title'
 # for boardgame, publisher_id in zip(boardgames, publisher_ids):
 #     update_entity(boardgame, table_boardgames, boardgame_field_to_update, publisher_id, boardgame_field_to_filter)
-#
+
 # # r
 # print(' ')
 # print(' ')
@@ -421,9 +438,9 @@ print(execute_query("SELECT * FROM junction", None, True))
 #                         JOIN junction  ON boardgames.boardgame_id = junction.boardgame_id
 #                                         AND categories.category_id = junction.category_id
 #                         GROUP BY category_name""", None, True))
-#
-#
-# # d
+
+
+# d
 # print(' ')
 # print(' ')
 # print('deleting gloomhaven entry...')
